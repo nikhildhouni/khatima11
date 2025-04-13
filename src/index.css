@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* login page */
+.shadow-inner-right::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: 0;
+    height: 100%;
+    width: 10px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.2), transparent);
+    z-index: 1;
+  }
+  
