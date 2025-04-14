@@ -1,18 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Phone } from "lucide-react";
-import { sendOtp } from "../api";
+import { setupRecaptcha } from "../firebase"; // Firebase OTP setup function
 
 const Login = () => {
   const [mobile, setMobile] = useState("");
   const navigate = useNavigate();
 
+  // Function to handle OTP Send (Continue)
   const handleContinue = async (e) => {
     e.preventDefault();
     try {
-      await sendOtp(mobile);
-      alert("OTP sent successfully");
-      navigate("/verify", { state: { mobile } });
+      if (mobile.length === 10) {
+        await setupRecaptcha(mobile); // Call Firebase OTP function
+        alert("OTP sent successfully");
+        navigate("/verify", { state: { mobile } }); // Navigate to OTP verification page
+      } else {
+        alert("Please enter a valid 10-digit mobile number.");
+      }
     } catch (err) {
       console.error("OTP Send Error:", err);
       alert("Failed to send OTP");
@@ -21,13 +26,9 @@ const Login = () => {
 
   return (
     <div className="flex h-screen bg-gradient-to-r from-yellow-600 via-orange-600 to-red-700">
-      {/* Left Section */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 relative shadow-inner-right">
         <img src="/logo.png" alt="IPL" className="h-20 mb-6" />
-        <form
-          onSubmit={handleContinue}
-          className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm"
-        >
+        <form onSubmit={handleContinue} className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
           <h2 className="text-center font-semibold mb-4 text-gray-800">Login / Register</h2>
           <div className="flex items-center border rounded-md overflow-hidden mb-4 px-3 py-2 bg-blue-50">
             <Phone className="w-4 h-4 text-gray-500" />
@@ -46,23 +47,11 @@ const Login = () => {
           >
             Continue
           </button>
-          <p className="text-xs text-center text-gray-500 mt-3">
-            By continuing, you accept our{" "}
-            <span className="underline cursor-pointer">terms of service</span> and{" "}
-            <span className="underline cursor-pointer">privacy policy</span>.
-          </p>
         </form>
       </div>
 
-      {/* Right Section */}
-      <div className="hidden md:flex w-1/2 bg-gradient-to-r from-yellow-600 via-orange-600 to-red-700 items-center justify-center relative">
-        <div className="text-white text-center px-6">
-          <img src="/ipl2025.webp" alt="TATA IPL" className="h-20 mx-auto mb-6" />
-          <h1 className="text-3xl font-semibold">WELCOME TO THE OFFICIAL</h1>
-          <h2 className="text-2xl font-bold mt-2">TATA IPL</h2>
-          <h3 className="text-2xl font-bold mt-1">2025 FANTASY GAME</h3>
-        </div>
-      </div>
+      {/* Invisible reCAPTCHA Container */}
+      <div id="recaptcha-container"></div> {/* Invisible reCAPTCHA */}
     </div>
   );
 };
