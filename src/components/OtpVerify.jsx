@@ -1,21 +1,23 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Phone } from "lucide-react";
-import { sendOtp } from "../api";
+import { useLocation, useNavigate } from "react-router-dom";
+import { verifyOtp } from "../api";  // Assuming verifyOtp is in api.js
 
-const Login = () => {
-  const [mobile, setMobile] = useState("");
+const OtpVerify = () => {
+  const [otp, setOtp] = useState("");
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const handleContinue = async (e) => {
+  const mobile = location.state?.mobile;
+
+  // Function to handle OTP verification
+  const handleVerify = async (e) => {
     e.preventDefault();
     try {
-      await sendOtp(mobile);
-      alert("OTP sent successfully");
-      navigate("/verify", { state: { mobile } });
+      await verifyOtp(mobile, otp);
+      alert("OTP Verified ✅");
+      navigate("/dashboard");
     } catch (err) {
-      console.error("OTP Send Error:", err);
-      alert("Failed to send OTP");
+      alert("Invalid OTP ❌");
     }
   };
 
@@ -25,31 +27,28 @@ const Login = () => {
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 relative shadow-inner-right">
         <img src="/logo.png" alt="IPL" className="h-20 mb-6" />
         <form
-          onSubmit={handleContinue}
+          onSubmit={handleVerify}
           className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm"
         >
-          <h2 className="text-center font-semibold mb-4 text-gray-800">Login / Register</h2>
+          <h2 className="text-center font-semibold mb-4 text-gray-800">Enter OTP</h2>
           <div className="flex items-center border rounded-md overflow-hidden mb-4 px-3 py-2 bg-blue-50">
-            <Phone className="w-4 h-4 text-gray-500" />
             <input
-              type="tel"
-              placeholder="+91 Mobile Number"
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
+              type="text"
+              placeholder="Enter 4-digit OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
               required
-              className="ml-2 w-full bg-transparent outline-none text-sm"
+              className="w-full bg-transparent outline-none text-sm"
             />
           </div>
           <button
             type="submit"
             className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded font-semibold"
           >
-            Continue
+            Verify OTP
           </button>
           <p className="text-xs text-center text-gray-500 mt-3">
-            By continuing, you accept our{" "}
-            <span className="underline cursor-pointer">terms of service</span> and{" "}
-            <span className="underline cursor-pointer">privacy policy</span>.
+            OTP sent to <span className="font-medium">{mobile}</span>
           </p>
         </form>
       </div>
@@ -67,4 +66,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default OtpVerify;
